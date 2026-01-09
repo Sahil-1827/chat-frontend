@@ -1,0 +1,126 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import AuthLayout from '../components/layout/AuthLayout';
+import { ChevronDown, ArrowLeft } from 'lucide-react';
+import authService from '../services/authService';
+import toast from 'react-hot-toast';
+
+const ForgotPassword = () => {
+    const navigate = useNavigate();
+    const [phone, setPhone] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [step, setStep] = useState(1); // 1: Verify Phone, 2: Reset Password
+
+    const handleVerifyPhone = async (e) => {
+        e.preventDefault();
+
+        try {
+            await authService.verifyPhone(phone);
+            toast.success('Phone verified!');
+            setStep(2); // Move to password reset
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Verification failed');
+        }
+    };
+
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+
+        try {
+            await authService.resetPassword({ phone, newPassword });
+            toast.success('Password reset successfully! Please login.');
+            navigate('/login');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Error resetting password');
+        }
+    }
+
+    return (
+        <AuthLayout title={step === 1 ? "Reset Password" : "Set New Password"} subtitle={step === 1 ? "Enter your phone number to recover your account." : "Enter your new password."}>
+            {step === 1 && (
+                <form onSubmit={handleVerifyPhone} className="space-y-6 max-w-sm mx-auto">
+                    <div className="space-y-4">
+
+                        <div className="relative">
+                            <div className="w-full border border-gray-300 dark:border-gray-600 rounded-full px-4 py-3 bg-white dark:bg-[#202c33] flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-[#2a3942] transition-colors">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">🇮🇳</span>
+                                    <span className="text-gray-800 dark:text-gray-200">India</span>
+                                </div>
+                                <ChevronDown className="w-4 h-4 text-[#008069]" />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <div className="w-24 border border-gray-300 dark:border-gray-600 rounded-full px-4 py-3 bg-white dark:bg-[#202c33] flex items-center text-gray-800 dark:text-gray-200">
+                                <span className="text-gray-500 mr-1">+</span>
+                                <input
+                                    type="text"
+                                    value="91"
+                                    readOnly
+                                    className="w-full bg-transparent focus:outline-none"
+                                />
+                            </div>
+                            <div className="flex-1 border border-gray-300 dark:border-gray-600 rounded-full px-5 py-3 bg-white dark:bg-[#202c33]">
+                                <input
+                                    type="tel"
+                                    placeholder="Phone number"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="w-full bg-transparent focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-4 flex flex-col items-center gap-4">
+                        <button
+                            type="submit"
+                            className="bg-[#008069] hover:bg-[#00715c] text-white rounded-full px-8 py-2.5 font-medium transition-colors shadow-sm"
+                        >
+                            Next
+                        </button>
+                        <div className="flex gap-4 text-xs">
+                            <Link to="/login" className="flex items-center gap-2 text-[#008069] font-medium hover:underline">
+                                <ArrowLeft className="w-3 h-3" /> Back to Login
+                            </Link>
+                        </div>
+                    </div>
+                </form>
+            )}
+
+            {step === 2 && (
+                <form onSubmit={handleResetPassword} className="space-y-6 max-w-sm mx-auto">
+                    <div className="space-y-4">
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-full px-5 py-3 bg-white dark:bg-[#202c33]">
+                            <input
+                                type="password"
+                                placeholder="New Password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full bg-transparent focus:outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-4 flex flex-col items-center gap-4">
+                        <button
+                            type="submit"
+                            className="bg-[#008069] hover:bg-[#00715c] text-white rounded-full px-8 py-2.5 font-medium transition-colors shadow-sm"
+                        >
+                            Reset Password
+                        </button>
+
+                        <button type="button" onClick={() => setStep(1)} className="text-[#008069] font-medium hover:underline text-xs">
+                            Back
+                        </button>
+                    </div>
+                </form>
+            )}
+        </AuthLayout>
+    );
+};
+
+export default ForgotPassword;
