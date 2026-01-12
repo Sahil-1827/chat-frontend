@@ -240,8 +240,8 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
         }
     };
 
-    const MenuItem = ({ icon: Icon, text, danger = false }) => (
-        <button className={`w-full px-4 py-2.5 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[14.5px] ${danger ? 'text-[#f15c6d]' : 'text-[#3b4a54] dark:text-[#d1d7db]'}`}>
+    const MenuItem = ({ icon: Icon, text, danger = false, onClick }) => (
+        <button onClick={onClick} className={`w-full px-4 py-2.5 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[14.5px] ${danger ? 'text-[#f15c6d]' : 'text-[#3b4a54] dark:text-[#d1d7db]'}`}>
             {Icon && <Icon className={`w-5 h-5 ${danger ? 'text-[#f15c6d]' : 'text-[#54656f]'}`} strokeWidth={1.5} />}
             {text}
         </button>
@@ -255,6 +255,11 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
     const handleBlock = () => {
         socketService.respondToRequest(chatId, 'rejected', myPhone);
         setRequestStatus('rejected');
+    };
+
+    const handleUnblock = () => {
+        socketService.respondToRequest(chatId, 'accepted', myPhone);
+        setRequestStatus('accepted');
     };
 
     // Group messages by date
@@ -306,8 +311,11 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
 
         if (requestStatus === 'rejected') {
             return (
-                <div className="p-4 bg-[#f0f2f5] dark:bg-[#202c33] text-center text-[#54656f] dark:text-[#aebac1] text-sm shadow-inner">
-                    You have blocked this contact.
+                <div className="p-4 bg-[#f0f2f5] dark:bg-[#202c33] flex flex-col items-center gap-2 text-[#54656f] dark:text-[#aebac1] text-sm shadow-inner">
+                    <p>You have blocked this contact.</p>
+                    <button onClick={handleUnblock} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">
+                        Unblock
+                    </button>
                 </div>
             );
         }
@@ -353,7 +361,15 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
                             <MenuItem icon={XCircle} text="Close chat" />
                             <div className="my-1 border-b border-gray-100 dark:border-[#37404a]"></div>
                             <MenuItem icon={Flag} text="Report" />
-                            <MenuItem icon={Ban} text="Block" />
+                            <MenuItem
+                                icon={Ban}
+                                text={requestStatus === 'rejected' ? "Unblock" : "Block"}
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    if (requestStatus === 'rejected') handleUnblock();
+                                    else handleBlock();
+                                }}
+                            />
                             <MenuItem icon={Trash2} text="Clear chat" />
                             <MenuItem icon={Trash2} text="Delete chat" danger={true} />
                         </div>
