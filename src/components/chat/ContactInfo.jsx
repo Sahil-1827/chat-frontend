@@ -42,11 +42,11 @@ const ContactInfo = ({ user, onClose, onBlock, onDeleteChat, isBlocked }) => {
 
                 {/* Actions */}
                 <div className="mt-4 p-4 bg-white dark:bg-[#111b21] shadow-sm flex flex-col gap-2">
-                    <button onClick={onBlock} className="w-full flex items-center gap-4 py-3 text-[#f15c6d] hover:bg-[#ffebee] dark:hover:bg-[#2a1f22] rounded px-2 transition-colors">
+                    <button onClick={onBlock} className="w-full flex items-center gap-4 py-3 text-[#f15c6d] hover:bg-[#ffebee] dark:hover:bg-[#2a1f22] rounded px-2 transition-colors hover:cursor-pointer">
                         <Ban className="w-5 h-5" />
                         <span className="text-sm font-medium">{isBlocked ? 'Unblock' : 'Block'} {user.name}</span>
                     </button>
-                    <button onClick={onDeleteChat} className="w-full flex items-center gap-4 py-3 text-[#f15c6d] hover:bg-[#ffebee] dark:hover:bg-[#2a1f22] rounded px-2 transition-colors">
+                    <button onClick={onDeleteChat} className="w-full flex items-center gap-4 py-3 text-[#f15c6d] hover:bg-[#ffebee] dark:hover:bg-[#2a1f22] rounded px-2 transition-colors hover:cursor-pointer">
                         <Trash2 className="w-5 h-5" />
                         <span className="text-sm font-medium">Delete chat</span>
                     </button>

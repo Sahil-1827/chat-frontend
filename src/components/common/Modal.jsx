@@ -45,7 +45,7 @@ const Modal = ({ isOpen, onClose, title, children, primaryButtonText, secondaryB
                     {secondaryButtonText && (
                         <button
                             onClick={onSecondaryAction || onClose}
-                            className="px-6 py-2 rounded-full text-[#008069] dark:text-[#00a884] bg-transparent hover:bg-black/5 dark:hover:bg-white/5 font-medium text-sm transition-colors border border-[#e9edef] dark:border-[#8696a0]/30"
+                            className="px-6 py-2 rounded-full text-[#008069] dark:text-[#00a884] bg-transparent hover:bg-black/5 dark:hover:bg-white/5 font-medium text-sm transition-colors border border-[#e9edef] dark:border-[#8696a0]/30 hover:cursor-pointer"
                         >
                             {secondaryButtonText}
                         </button>
@@ -54,7 +54,7 @@ const Modal = ({ isOpen, onClose, title, children, primaryButtonText, secondaryB
                     {primaryButtonText && (
                         <button
                             onClick={onPrimaryAction}
-                            className={`px-6 py-2 rounded-full text-[#111b21] dark:text-[#111b21] font-medium text-sm transition-colors shadow-sm ${isDanger
+                            className={`px-6 py-2 rounded-full text-[#111b21] dark:text-[#111b21] font-medium text-sm transition-colors shadow-sm hover:cursor-pointer ${isDanger
                                 ? 'bg-[#ef4444] hover:bg-[#dc2626] text-white dark:text-white'
                                 : 'bg-[#00a884] hover:bg-[#008f70] text-white dark:text-[#111b21]'
                                 }`}

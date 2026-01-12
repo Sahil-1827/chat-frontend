@@ -33,7 +33,7 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-6 max-w-sm mx-auto">
                 <div className="space-y-4">
                     {/* Country Selector Mock */}
-                    <div className="relative">
+                    {/* <div className="relative">
                         <div className="w-full border border-gray-300 dark:border-gray-600 rounded-full px-4 py-3 bg-white dark:bg-[#202c33] flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-[#2a3942] transition-colors">
                             <div className="flex items-center gap-2">
                                 <span className="text-lg">🇮🇳</span>
@@ -41,7 +41,7 @@ const Login = () => {
                             </div>
                             <ChevronDown className="w-4 h-4 text-[#008069]" />
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Phone Input Group */}
                     <div className="flex gap-3">
@@ -82,7 +82,7 @@ const Login = () => {
                 <div className="pt-4 flex flex-col items-center gap-4">
                     <button
                         type="submit"
-                        className="bg-[#008069] hover:bg-[#00715c] text-white rounded-full px-8 py-2.5 font-medium transition-colors shadow-sm"
+                        className="bg-[#008069] hover:bg-[#00715c] text-white rounded-full px-8 py-2.5 font-medium transition-colors shadow-sm hover:cursor-pointer"
                     >
                         Next
                     </button>

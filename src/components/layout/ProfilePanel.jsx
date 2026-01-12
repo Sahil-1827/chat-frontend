@@ -114,24 +114,24 @@ const ProfilePanel = ({ name, setName, about, setAbout, image, setImage }) => {
                         </div>
 
                         {showPhotoMenu && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#233138] rounded-md shadow-xl py-2 w-48 z-50 overflow-hidden">
+                            <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#233138] rounded-md shadow-xl py-2 w-48 z-50 overflow-hidden">
                                 {image !== 'https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png' && (
                                     <button
-                                        className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm"
+                                        className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm hover:cursor-pointer"
                                         onClick={(e) => { e.stopPropagation(); setShowViewModal(true); setShowPhotoMenu(false); }}
                                     >
                                         <User className="w-5 h-5" /> View photo
                                     </button>
                                 )}
                                 <button
-                                    className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm"
+                                    className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm hover:cursor-pointer"
                                     onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); setShowPhotoMenu(false); }}
                                 >
                                     <Upload className="w-5 h-5" /> Upload photo
                                 </button>
                                 {image !== 'https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png' && (
                                     <button
-                                        className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm"
+                                        className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm hover:cursor-pointer"
                                         onClick={(e) => { e.stopPropagation(); handleRemovePhoto(); }}
                                     >
                                         <Trash2 className="w-5 h-5" /> Remove photo

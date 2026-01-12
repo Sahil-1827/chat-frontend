@@ -354,7 +354,7 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
     };
 
     const MenuItem = ({ icon: Icon, text, danger = false, onClick }) => (
-        <button onClick={onClick} className={`w-full px-4 py-2.5 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[14.5px] ${danger ? 'text-[#f15c6d]' : 'text-[#3b4a54] dark:text-[#d1d7db]'}`}>
+        <button onClick={onClick} className={`w-full px-4 py-2.5 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[14.5px] hover:cursor-pointer ${danger ? 'text-[#f15c6d]' : 'text-[#3b4a54] dark:text-[#d1d7db]'}`}>
             {Icon && <Icon className={`w-5 h-5 ${danger ? 'text-[#f15c6d]' : 'text-[#54656f]'}`} strokeWidth={1.5} />}
             {text}
         </button>
@@ -470,7 +470,7 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
                     ) : isSearchOpen ? (
                         <div className="flex items-center gap-2 w-full bg-white dark:bg-[#202c33] rounded-lg px-2">
                             <button onClick={toggleSearch} className="text-[#54656f] dark:text-[#aebac1] p-2">
-                                <ArrowRight className="w-5 h-5 rotate-180" />
+                                <ArrowRight className="w-5 h-5 rotate-180 hover:cursor-pointer" />
                             </button>
                             <input
                                 autoFocus
@@ -512,7 +512,7 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 relative">
-                                <button onClick={toggleSearch}><Search className="w-5 h-5" /></button>
+                                <button onClick={toggleSearch}><Search className="w-5 h-5 hover:cursor-pointer" /></button>
                                 <button
                                     className={`p-1.5 rounded-full transition-colors ${isMenuOpen ? 'bg-gray-200 dark:bg-[#374248]' : ''}`}
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}

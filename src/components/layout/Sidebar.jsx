@@ -6,7 +6,8 @@ import {
     Users,
     Star,
     CheckSquare,
-    LogOut
+    LogOut,
+    Lock
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
@@ -317,8 +318,10 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
 
                     <div className="mt-4 p-4 text-center border-t border-[#f0f2f5] dark:border-[#202c33]">
                         <p className="text-xs text-[#8696a0] flex items-center justify-center gap-1">
-                            <span className="text-[10px]">🔒</span>
-                            Your personal messages are end-to-end encrypted
+                            <Lock size={14} strokeWidth={2} />
+                            <span>
+                                Your personal messages are end-to-end encrypted
+                            </span>
                         </p>
                     </div>
                 </div>

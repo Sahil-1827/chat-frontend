@@ -32,7 +32,7 @@ const SettingsPanel = ({ setActiveTab, name, about, image }) => {
     const SettingsItem = ({ icon: Icon, title, subtitle, onClick, isDanger }) => (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-4 px-6 py-4 hover:bg-[#f5f6f6] dark:hover:bg-[#202c33] transition-colors text-left border-b border-[#f0f2f5] dark:border-[#202c33] ${isDanger ? 'text-[#f15c6d]' : ''}`}
+            className={`w-full flex items-center gap-4 px-6 py-4 hover:bg-[#f5f6f6] dark:hover:bg-[#202c33] transition-colors text-left border-b border-[#f0f2f5] dark:border-[#202c33] hover:cursor-pointer ${isDanger ? 'text-[#f15c6d]' : ''}`}
         >
             <div className={`text-[#54656f] dark:text-[#aebac1] ${isDanger ? 'text-[#f15c6d]' : ''}`}>
                 <Icon className="w-5 h-5" strokeWidth={1.5} />

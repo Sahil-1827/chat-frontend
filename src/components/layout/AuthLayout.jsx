@@ -1,4 +1,5 @@
-import { MessageCircle, Lock } from 'lucide-react';
+import { BsWhatsapp } from "react-icons/bs";
+import { Lock } from 'lucide-react';
 
 const AuthLayout = ({ children, title, subtitle }) => {
 
@@ -7,7 +8,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
 
             <div className="absolute top-8 left-8 flex items-center gap-2">
                 <div className="flex items-center gap-2 text-[#25d366]">
-                    <MessageCircle size={32} strokeWidth={2.2} />
+                    <BsWhatsapp size={30}/>
                     <span className="text-xl font-bold tracking-tight">
                         WhatsApp
                     </span>
