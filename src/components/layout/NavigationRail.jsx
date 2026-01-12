@@ -2,7 +2,7 @@ import { MessageSquare, CircleDashed, Users, Settings, Circle } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 
-const NavigationRail = ({ activeTab, setActiveTab }) => {
+const NavigationRail = ({ activeTab, setActiveTab, userImage }) => {
     const { theme } = useTheme();
     const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ const NavigationRail = ({ activeTab, setActiveTab }) => {
                     title="Profile"
                 >
                     <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 font-bold overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile" className="w-full h-full object-cover" />
+                        <img src={userImage || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                 </div>
             </div>

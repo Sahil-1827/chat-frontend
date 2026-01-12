@@ -7,30 +7,83 @@ import ProfilePanel from '../components/layout/ProfilePanel';
 import SettingsPanel from '../components/layout/SettingsPanel';
 import StatusPanel from '../components/layout/StatusPanel';
 import CommunitiesPanel from '../components/layout/CommunitiesPanel';
+import authService from '../services/authService';
+import { useEffect } from 'react';
 
 const Chat = () => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [activeTab, setActiveTab] = useState('chats');
 
+    // Profile State
+    const [profileName, setProfileName] = useState('Abubakar'); // Default or fetch
+    const [aboutText, setAboutText] = useState('Hey there! I am using WhatsApp.');
+    const [profileImage, setProfileImage] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const user = await authService.getProfile();
+                if (user.name) setProfileName(user.name);
+                if (user.about) setAboutText(user.about);
+                if (user.profilePic) {
+                    // Check if it's already an absolute URL (Cloudinary) or needs prepending
+                    const imageUrl = user.profilePic.startsWith('http')
+                        ? user.profilePic
+                        : `http://localhost:5000/${user.profilePic}`;
+                    setProfileImage(imageUrl);
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile", error);
+            }
+        };
+        fetchProfile();
+    }, []);
+
     const renderLeftPanel = () => {
         switch (activeTab) {
             case 'profile':
-                return <ProfilePanel />;
+                return (
+                    <ProfilePanel
+                        name={profileName}
+                        setName={setProfileName}
+                        about={aboutText}
+                        setAbout={setAboutText}
+                        image={profileImage}
+                        setImage={setProfileImage}
+                    />
+                );
             case 'settings':
-                return <SettingsPanel />;
+                return (
+                    <SettingsPanel
+                        setActiveTab={setActiveTab}
+                        name={profileName}
+                        about={aboutText}
+                        image={profileImage}
+                    />
+                );
             case 'status':
-                return <StatusPanel />;
+                return <StatusPanel myImage={profileImage} />;
             case 'communities':
                 return <CommunitiesPanel />;
             default:
-                return <Sidebar onSelectChat={setSelectedChat} />;
+                return (
+                    <Sidebar
+                        onSelectChat={setSelectedChat}
+                        userImage={profileImage}
+                    />
+                );
         }
     };
+
 
     return (
         <div className="flex h-screen bg-[#d1d7db] dark:bg-[#111b21] overflow-hidden">
             <div className="hidden md:block h-full flex-shrink-0">
-                <NavigationRail activeTab={activeTab} setActiveTab={setActiveTab} />
+                <NavigationRail
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    userImage={profileImage}
+                />
             </div>
 
             <div className={`${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-[400px] flex-col relative z-20 h-full`}>

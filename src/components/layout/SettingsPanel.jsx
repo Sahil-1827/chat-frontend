@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import Modal from '../common/Modal';
 
-const SettingsPanel = () => {
+const SettingsPanel = ({ setActiveTab, name, about, image }) => {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -45,13 +45,16 @@ const SettingsPanel = () => {
                 </div>
             </div>
 
-            <div className="px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#202c33] cursor-pointer flex items-center gap-4">
+            <div
+                className="px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#202c33] cursor-pointer flex items-center gap-4 transition-colors"
+                onClick={() => setActiveTab('profile')}
+            >
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-300">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile" className="w-full h-full object-cover" />
+                    <img src={image} alt="Profile" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                    <h2 className="text-[19px] text-[#3b4a54] dark:text-[#e9edef] font-normal">Abubakar</h2>
-                    <p className="text-[#667781] dark:text-[#8696a0] text-sm">Hey there! I am using WhatsApp.</p>
+                    <h2 className="text-[19px] text-[#3b4a54] dark:text-[#e9edef] font-normal">{name}</h2>
+                    <p className="text-[#667781] dark:text-[#8696a0] text-sm overflow-hidden text-ellipsis whitespace-nowrap max-w-[280px]">{about}</p>
                 </div>
             </div>
 
