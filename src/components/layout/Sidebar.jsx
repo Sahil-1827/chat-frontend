@@ -14,10 +14,10 @@ import { useState, useRef, useEffect } from 'react';
 import authService from '../../services/authService';
 import socketService from '../../services/socketService';
 
-const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat }) => {
+const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUsers }) => {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [users, setUsers] = useState([]);
+
     const menuRef = useRef(null);
     const selectedChatRef = useRef(null);
 
@@ -259,7 +259,7 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat }) => {
                                             ? user.profilePic
                                             : user.profilePic
                                                 ? `http://localhost:5000/${user.profilePic}`
-                                                : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user._id}`
+                                                : `https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png`
                                     }
                                     alt={user.name}
                                     className="w-full h-full object-cover"

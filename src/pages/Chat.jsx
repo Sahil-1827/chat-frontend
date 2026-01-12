@@ -18,9 +18,10 @@ const Chat = () => {
     // Profile State
     const [profileName, setProfileName] = useState('Abubakar'); // Default or fetch
     const [aboutText, setAboutText] = useState('Hey there! I am using WhatsApp.');
-    const [profileImage, setProfileImage] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');
+    const [profileImage, setProfileImage] = useState('https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png');
     const [myPhone, setMyPhone] = useState(null);
     const [totalUnread, setTotalUnread] = useState(0);
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -86,6 +87,8 @@ const Chat = () => {
                         userImage={profileImage}
                         onUnreadCountChange={setTotalUnread}
                         selectedChat={selectedChat}
+                        users={users}
+                        setUsers={setUsers}
                     />
                 );
         }
@@ -110,7 +113,7 @@ const Chat = () => {
             <div className={`${!selectedChat ? 'hidden md:flex' : 'flex'} flex-1 flex-col bg-[#efeae2] dark:bg-[#0b141a] relative h-full`}>
                 {selectedChat ? (
                     <>
-                        <ChatWindow chatUser={selectedChat} myPhone={myPhone} />
+                        <ChatWindow chatUser={selectedChat} myPhone={myPhone} setUsers={setUsers} />
                     </>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-10 relative">

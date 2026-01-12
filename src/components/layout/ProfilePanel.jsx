@@ -1,7 +1,8 @@
-import { Camera, Edit2, Check, X } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { Camera, Edit2, Check, X, Trash2, User, Upload } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import authService from '../../services/authService';
 import toast from 'react-hot-toast';
+import Modal from '../common/Modal';
 
 const ProfilePanel = ({ name, setName, about, setAbout, image, setImage }) => {
     const [isEditingName, setIsEditingName] = useState(false);
@@ -9,6 +10,36 @@ const ProfilePanel = ({ name, setName, about, setAbout, image, setImage }) => {
     const [tempName, setTempName] = useState(name);
     const [tempAbout, setTempAbout] = useState(about);
     const fileInputRef = useRef(null);
+    const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const photoMenuRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (photoMenuRef.current && !photoMenuRef.current.contains(event.target)) {
+                setShowPhotoMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleRemovePhoto = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('removeProfilePic', 'true');
+
+            await authService.updateProfile(formData);
+
+            setImage('https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png');
+            toast.success('Profile photo removed');
+            setShowPhotoMenu(false);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to remove photo');
+        }
+    };
 
     const handleInitialSave = async (field, value) => {
         const formData = new FormData();
@@ -73,7 +104,7 @@ const ProfilePanel = ({ name, setName, about, setAbout, image, setImage }) => {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#f0f2f5] dark:bg-[#111b21]">
                 <div className="flex flex-col items-center py-8">
-                    <div className="relative group cursor-pointer" onClick={() => fileInputRef.current.click()}>
+                    <div className="relative group cursor-pointer" ref={photoMenuRef} onClick={() => setShowPhotoMenu(!showPhotoMenu)}>
                         <div className="w-[200px] h-[200px] rounded-full overflow-hidden bg-gray-300">
                             <img src={image} alt="Profile" className="w-full h-full object-cover" />
                         </div>
@@ -81,6 +112,34 @@ const ProfilePanel = ({ name, setName, about, setAbout, image, setImage }) => {
                             <Camera className="w-6 h-6 mb-1" />
                             <span className="text-xs uppercase font-medium">Change <br /> Profile Photo</span>
                         </div>
+
+                        {showPhotoMenu && (
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#233138] rounded-md shadow-xl py-2 w-48 z-50 overflow-hidden">
+                                {image !== 'https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png' && (
+                                    <button
+                                        className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm"
+                                        onClick={(e) => { e.stopPropagation(); setShowViewModal(true); setShowPhotoMenu(false); }}
+                                    >
+                                        <User className="w-5 h-5" /> View photo
+                                    </button>
+                                )}
+                                <button
+                                    className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm"
+                                    onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); setShowPhotoMenu(false); }}
+                                >
+                                    <Upload className="w-5 h-5" /> Upload photo
+                                </button>
+                                {image !== 'https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png' && (
+                                    <button
+                                        className="w-full text-left px-4 py-3 hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-sm"
+                                        onClick={(e) => { e.stopPropagation(); handleRemovePhoto(); }}
+                                    >
+                                        <Trash2 className="w-5 h-5" /> Remove photo
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -143,6 +202,21 @@ const ProfilePanel = ({ name, setName, about, setAbout, image, setImage }) => {
                     )}
                 </div>
             </div>
+            {/* View Photo Modal */}
+            <Modal
+                isOpen={showViewModal}
+                onClose={() => setShowViewModal(false)}
+                title="Profile Photo"
+                secondaryButtonText="Close"
+            >
+                <div className="flex justify-center items-center rounded-lg overflow-hidden">
+                    <img
+                        src={image}
+                        alt="Profile"
+                        className="w-full h-auto max-h-[60vh] object-contain"
+                    />
+                </div>
+            </Modal>
         </div>
     );
 };

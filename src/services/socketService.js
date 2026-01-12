@@ -7,11 +7,15 @@ class SocketService {
     sentMessageListeners = [];
     messageListeners = [];
     readListeners = [];
+    connectionRequestListeners = [];
+    requestResponseListeners = [];
+    messageErrorListeners = [];
+    requestSentListeners = [];
 
     connect() {
         if (!this.socket) {
             this.socket = io(SOCKET_URL, {
-                transports: ['polling'], // Force polling as per user request
+                transports: ['polling'],
                 withCredentials: true
             });
 
@@ -20,6 +24,10 @@ class SocketService {
                 // Re-attach listeners upon connection/reconnection
                 this.messageListeners.forEach(cb => this.socket.on('receive_message', cb));
                 this.readListeners.forEach(cb => this.socket.on('messages_read', cb));
+                this.connectionRequestListeners.forEach(cb => this.socket.on('connection_request', cb));
+                this.requestResponseListeners.forEach(cb => this.socket.on('request_response', cb));
+                this.messageErrorListeners.forEach(cb => this.socket.on('message_error', cb));
+                this.requestSentListeners.forEach(cb => this.socket.on('request_sent', cb));
             });
 
             this.socket.on('connect_error', (err) => {
@@ -102,6 +110,48 @@ class SocketService {
         if (this.socket) {
             this.socket.off('receive_message', callback);
         }
+    }
+
+    respondToRequest(to, status, from) {
+        if (this.socket) {
+            this.socket.emit('respond_to_request', { to, status, from });
+        }
+    }
+
+    onConnectionRequest(callback) {
+        this.connectionRequestListeners.push(callback);
+        if (this.socket) this.socket.on('connection_request', callback);
+    }
+    offConnectionRequest(callback) {
+        this.connectionRequestListeners = this.connectionRequestListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('connection_request', callback);
+    }
+
+    onRequestResponse(callback) {
+        this.requestResponseListeners.push(callback);
+        if (this.socket) this.socket.on('request_response', callback);
+    }
+    offRequestResponse(callback) {
+        this.requestResponseListeners = this.requestResponseListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('request_response', callback);
+    }
+
+    onMessageError(callback) {
+        this.messageErrorListeners.push(callback);
+        if (this.socket) this.socket.on('message_error', callback);
+    }
+    offMessageError(callback) {
+        this.messageErrorListeners = this.messageErrorListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('message_error', callback);
+    }
+
+    onRequestSent(callback) {
+        this.requestSentListeners.push(callback);
+        if (this.socket) this.socket.on('request_sent', callback);
+    }
+    offRequestSent(callback) {
+        this.requestSentListeners = this.requestSentListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('request_sent', callback);
     }
 }
 

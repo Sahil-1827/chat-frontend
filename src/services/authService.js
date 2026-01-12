@@ -47,7 +47,15 @@ const authService = {
     getMessages: async (contactPhone) => {
         const response = await api.get(`/messages/${contactPhone}`);
         return response.data;
-    }
+    },
+
+    getConnectionStatus: async (phone) => {
+        const token = localStorage.getItem('token');
+        const response = await api.get(`/connections/${phone}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
 };
 
 export default authService;

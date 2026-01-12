@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import socketService from '../../services/socketService';
 import authService from '../../services/authService';
 
-const ChatWindow = ({ chatUser, myPhone }) => {
+const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
     const chatId = chatUser?.phone || chatUser; // Handle both object and legacy string ID
 
     // Initial data from the screenshots
@@ -32,6 +32,32 @@ const ChatWindow = ({ chatUser, myPhone }) => {
     ];
 
     const [messages, setMessages] = useState([]);
+    const [currentChatUser, setCurrentChatUser] = useState(chatUser);
+
+    useEffect(() => {
+        setCurrentChatUser(chatUser);
+    }, [chatUser]);
+
+    // Fetch fresh details on chat open using getAllUsers
+    useEffect(() => {
+        if (chatId && chatId !== 'LilBrother') {
+            const fetchUsers = async () => {
+                try {
+                    const allUsers = await authService.getAllUsers();
+                    if (setUsers) setUsers(allUsers); // Update global list
+
+                    // Find the current user from the list
+                    const updatedUser = allUsers.find(u => u.phone === chatId || u._id === chatId);
+                    if (updatedUser) {
+                        setCurrentChatUser(prev => ({ ...prev, ...updatedUser }));
+                    }
+                } catch (error) {
+                    console.error("Failed to refresh user details", error);
+                }
+            };
+            fetchUsers();
+        }
+    }, [chatId, setUsers]);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -111,6 +137,8 @@ const ChatWindow = ({ chatUser, myPhone }) => {
         };
     }, [chatId, myPhone]);
 
+    const [requestStatus, setRequestStatus] = useState('none');
+    const [isRequester, setIsRequester] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const bottomRef = useRef(null);
@@ -130,6 +158,67 @@ const ChatWindow = ({ chatUser, myPhone }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Fetch Connection Status
+    useEffect(() => {
+        if (chatId && myPhone && chatId !== 'LilBrother') {
+            authService.getConnectionStatus(chatId).then(data => {
+                setRequestStatus(data.status);
+                setIsRequester(data.isRequester);
+            }).catch(err => console.error("Failed to fetch connection status", err));
+        }
+    }, [chatId, myPhone]);
+
+    // Socket Listeners for connection events
+    useEffect(() => {
+        const handleConnectionRequest = (data) => {
+            // Received a request from this chat user
+            if (String(data.from) === String(chatId)) {
+                setRequestStatus('pending');
+                setIsRequester(false);
+                // Also optionally append the message if it came with one? 
+                // The standard receive_message handler handles the message content if emitted.
+                // Our server emits `connection_request` with msg details.
+                // Depending on if `receive_message` is ALSO emitted.
+                // Server code: emits `connection_request` (with msg) but NOT `receive_message`.
+                // So we need to add the first message manually here.
+                const newMessage = {
+                    id: data._id || Date.now(),
+                    text: data.message,
+                    time: data.time,
+                    sender: "other",
+                    status: 'sent',
+                    date: new Date().toISOString().split('T')[0]
+                };
+                setMessages((prev) => [...prev, newMessage]);
+            }
+        };
+
+        const handleRequestSent = (data) => {
+            if (String(data.to) === String(chatId)) {
+                setRequestStatus('pending');
+                setIsRequester(true);
+            }
+        };
+
+        const handleRequestResponse = (data) => {
+            // Check if this event relates to the current chat
+            // data.from is the ID of the person we are chatting with (Partner)
+            if (String(data.from) === String(chatId)) {
+                setRequestStatus(data.status);
+            }
+        };
+
+        socketService.onConnectionRequest(handleConnectionRequest);
+        socketService.onRequestSent(handleRequestSent);
+        socketService.onRequestResponse(handleRequestResponse);
+
+        return () => {
+            socketService.offConnectionRequest(handleConnectionRequest);
+            socketService.offRequestSent(handleRequestSent);
+            socketService.offRequestResponse(handleRequestResponse);
+        };
+    }, [chatId, myPhone]);
+
     const handleSend = (text) => {
         if (!text.trim()) return;
 
@@ -141,7 +230,7 @@ const ChatWindow = ({ chatUser, myPhone }) => {
             status: 'sent',
             date: new Date().toISOString().split('T')[0]
         };
-        setMessages([...messages, newMessage]);
+        setMessages((prev) => [...prev, newMessage]);
 
         // Emit socket event
         if (myPhone && chatId) {
@@ -157,6 +246,16 @@ const ChatWindow = ({ chatUser, myPhone }) => {
             {text}
         </button>
     );
+
+    const handleAccept = () => {
+        socketService.respondToRequest(chatId, 'accepted', myPhone);
+        setRequestStatus('accepted');
+    };
+
+    const handleBlock = () => {
+        socketService.respondToRequest(chatId, 'rejected', myPhone);
+        setRequestStatus('rejected');
+    };
 
     // Group messages by date
     const groupMessagesByDate = (msgs) => {
@@ -178,6 +277,44 @@ const ChatWindow = ({ chatUser, myPhone }) => {
         return new Date(dateString).toLocaleDateString('en-GB', options).toUpperCase();
     };
 
+    const renderFooter = () => {
+        if (requestStatus === 'pending') {
+            if (isRequester) {
+                return (
+                    <div className="p-4 bg-[#f0f2f5] dark:bg-[#202c33] text-center text-[#54656f] dark:text-[#aebac1] text-sm shadow-inner">
+                        Waiting for this user to accept your request.
+                    </div>
+                );
+            } else {
+                return (
+                    <div className="p-3 bg-[#f0f2f5] dark:bg-[#202c33] flex flex-col items-center gap-2 shadow-inner border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-sm text-[#54656f] dark:text-[#aebac1]">
+                            "{currentChatUser?.name || chatId}" is not in your contacts.
+                        </p>
+                        <div className="flex gap-4 w-full justify-center">
+                            <button onClick={handleBlock} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-full text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">
+                                Block
+                            </button>
+                            <button onClick={handleAccept} className="px-6 py-2 bg-[#00a884] text-white rounded-full text-sm font-medium hover:bg-[#008f6f]">
+                                Add to contacts
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        if (requestStatus === 'rejected') {
+            return (
+                <div className="p-4 bg-[#f0f2f5] dark:bg-[#202c33] text-center text-[#54656f] dark:text-[#aebac1] text-sm shadow-inner">
+                    You have blocked this contact.
+                </div>
+            );
+        }
+
+        return <MessageInput onSend={handleSend} />;
+    };
+
     return (
         <div className="flex flex-col h-full w-full bg-[#efeae2] dark:bg-[#0b141a] relative">
             <div className="absolute inset-0 z-0 opacity-[0.4] bg-repeat pointer-events-none" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')" }}></div>
@@ -186,14 +323,14 @@ const ChatWindow = ({ chatUser, myPhone }) => {
                 <div className="flex items-center gap-4 cursor-pointer">
                     <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0 overflow-hidden">
                         <img
-                            src={chatUser?.profilePic && chatUser.profilePic.startsWith('http') ? chatUser.profilePic : chatUser?.profilePic ? `http://localhost:5000/${chatUser.profilePic}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${chatId}`}
+                            src={currentChatUser?.profilePic && currentChatUser.profilePic.startsWith('http') ? currentChatUser.profilePic : currentChatUser?.profilePic ? `http://localhost:5000/${currentChatUser.profilePic}` : `https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png`}
                             alt="User"
                             className="w-full h-full object-cover"
                         />
                     </div>
                     <div>
                         <h2 className="text-[#111b21] dark:text-[#e9edef] font-medium text-base">
-                            {chatUser?.name || (chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`)}
+                            {currentChatUser?.name || (chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`)}
                         </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
                     </div>
@@ -247,7 +384,7 @@ const ChatWindow = ({ chatUser, myPhone }) => {
             </div>
 
             <div className="z-10 bg-[#f0f2f5] dark:bg-[#202c33]">
-                <MessageInput onSend={handleSend} />
+                {renderFooter()}
             </div>
         </div>
     );

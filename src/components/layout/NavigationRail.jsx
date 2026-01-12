@@ -63,7 +63,7 @@ const NavigationRail = ({ activeTab, setActiveTab, userImage, badgeCount }) => {
                     title="Profile"
                 >
                     <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 font-bold overflow-hidden">
-                        <img src={userImage || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={userImage || "https://res.cloudinary.com/dp1klmpjv/image/upload/v1768204540/default_avatar_bdqff0.png"} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                 </div>
             </div>
