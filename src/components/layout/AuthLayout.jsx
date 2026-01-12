@@ -4,12 +4,12 @@ import { Lock } from 'lucide-react';
 const AuthLayout = ({ children, title, subtitle }) => {
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcf5eb] dark:bg-[#111b21] relative p-4 transition-colors duration-200">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcf5eb] dark:bg-[#111b21] relative p-4 transition-colors duration-200 " style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')" }}>
 
             <div className="absolute top-8 left-8 flex items-center gap-2">
                 <div className="flex items-center gap-2 text-[#25d366]">
-                    <BsWhatsapp size={30}/>
-                    <span className="text-xl font-bold tracking-tight">
+                    <BsWhatsapp size={38}/>
+                    <span className="text-3xl font-bold tracking-tight">
                         WhatsApp
                     </span>
                 </div>

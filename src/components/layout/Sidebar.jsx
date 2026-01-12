@@ -14,10 +14,12 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import authService from '../../services/authService';
 import socketService from '../../services/socketService';
+import Modal from '../common/Modal';
 
 const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUsers }) => {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const menuRef = useRef(null);
     const selectedChatRef = useRef(null);
@@ -175,7 +177,7 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                         ref={menuRef}
                         className="absolute top-14 right-4 w-52 bg-white dark:bg-[#233138] rounded-lg shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100 border border-gray-100 dark:border-[#202c33] origin-top-right"
                     >
-                        <button className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px]">
+                        <button className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px] hover:cursor-pointer">
                             <Users
                                 className="w-5 h-5 text-[#54656f]"
                                 strokeWidth={1.5}
@@ -183,7 +185,7 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                             New group
                         </button>
 
-                        <button className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px]">
+                        <button className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px] hover:cursor-pointer">
                             <Star
                                 className="w-5 h-5 text-[#54656f]"
                                 strokeWidth={1.5}
@@ -191,7 +193,7 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                             Starred messages
                         </button>
 
-                        <button className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px]">
+                        <button className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px] hover:cursor-pointer">
                             <CheckSquare
                                 className="w-5 h-5 text-[#54656f]"
                                 strokeWidth={1.5}
@@ -202,8 +204,8 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                         <div className="my-1 border-b border-gray-100 dark:border-[#37404a]" />
 
                         <button
-                            className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px]"
-                            onClick={handleLogout}
+                            className="w-full px-4 py-2 text-left hover:bg-[#f5f6f6] dark:hover:bg-[#182229] flex items-center gap-3 text-[#3b4a54] dark:text-[#d1d7db] text-[15px] hover:cursor-pointer"
+                            onClick={() => setIsLogoutModalOpen(true)}
                         >
                             <LogOut
                                 className="w-5 h-5 text-[#54656f]"
@@ -211,7 +213,21 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                             />
                             Log out
                         </button>
+
+                        <Modal
+                            isOpen={isLogoutModalOpen}
+                            onClose={() => setIsLogoutModalOpen(false)}
+                            title="Log out?"
+                            primaryButtonText="Log out"
+                            secondaryButtonText="Cancel"
+                            isDanger={true}
+                            onPrimaryAction={handleLogout}
+                        >
+                            Are you sure you want to log out? <br />
+                            You can turn on <span className="text-[#008069] cursor-pointer">app lock</span> instead.
+                        </Modal>
                     </div>
+
                 )}
             </div>
 
