@@ -360,6 +360,22 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
         </button>
     );
 
+    // Search related state
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [messageSearchTerm, setMessageSearchTerm] = useState('');
+
+    const toggleSearch = () => {
+        setIsSearchOpen(!isSearchOpen);
+        if (isSearchOpen) {
+            setMessageSearchTerm(''); // Clear on close
+        }
+    };
+
+    // Filter messages logic
+    const filteredMessages = messages.filter(msg =>
+        msg.text?.toLowerCase().includes(messageSearchTerm.toLowerCase())
+    );
+
     // Group messages by date
     const groupMessagesByDate = (msgs) => {
         const groups = {};
@@ -373,7 +389,7 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
         return groups;
     };
 
-    const groupedMessages = groupMessagesByDate(messages);
+    const groupedMessages = groupMessagesByDate(filteredMessages);
 
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -451,6 +467,25 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
                                 <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
+                    ) : isSearchOpen ? (
+                        <div className="flex items-center gap-2 w-full bg-white dark:bg-[#202c33] rounded-lg px-2">
+                            <button onClick={toggleSearch} className="text-[#54656f] dark:text-[#aebac1] p-2">
+                                <ArrowRight className="w-5 h-5 rotate-180" />
+                            </button>
+                            <input
+                                autoFocus
+                                type="text"
+                                placeholder="Search..."
+                                value={messageSearchTerm}
+                                onChange={(e) => setMessageSearchTerm(e.target.value)}
+                                className="w-full bg-transparent py-2 px-1 text-sm text-[#3b4a54] dark:text-[#d1d7db] placeholder-[#54656f] dark:placeholder-[#aebac1] focus:outline-none"
+                            />
+                            {messageSearchTerm && (
+                                <button onClick={() => setMessageSearchTerm('')} className="text-[#54656f] dark:text-[#aebac1] p-2">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            )}
+                        </div>
                     ) : (
                         <>
                             <div className="flex items-center gap-4 cursor-pointer" onClick={() => setShowContactInfo(true)}>
@@ -477,7 +512,7 @@ const ChatWindow = ({ chatUser, myPhone, setUsers, onClose, users }) => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 relative">
-                                <button><Search className="w-5 h-5" /></button>
+                                <button onClick={toggleSearch}><Search className="w-5 h-5" /></button>
                                 <button
                                     className={`p-1.5 rounded-full transition-colors ${isMenuOpen ? 'bg-gray-200 dark:bg-[#374248]' : ''}`}
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}

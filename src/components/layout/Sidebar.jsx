@@ -136,6 +136,13 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
         ));
     };
 
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredUsers = users.filter(user =>
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.phone?.includes(searchTerm)
+    );
+
     return (
         <div className="w-full md:w-[400px] flex flex-col bg-white dark:bg-[#111b21] border-r border-[#d1d7db] dark:border-[#202c33] relative z-10 h-full">
             {/* Header */}
@@ -217,6 +224,8 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                     <input
                         type="text"
                         placeholder="Search or start a new chat"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full bg-[#f0f2f5] dark:bg-[#202c33] rounded-lg py-1.5 pl-10 pr-4 text-sm text-[#3b4a54] dark:text-[#d1d7db] placeholder-[#54656f] dark:placeholder-[#aebac1] focus:outline-none"
                     />
                 </div>
@@ -256,7 +265,7 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
                 </div>
 
                 <div className="flex flex-col">
-                    {users.map((user) => (
+                    {filteredUsers.map((user) => (
                         <div
                             key={user._id}
                             onClick={() => handleUserClick(user)}
