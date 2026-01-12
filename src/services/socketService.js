@@ -12,6 +12,8 @@ class SocketService {
     messageErrorListeners = [];
     requestSentListeners = [];
     userStatusListeners = [];
+    typingListeners = [];
+    stopTypingListeners = [];
 
     connect() {
         if (!this.socket) {
@@ -30,6 +32,8 @@ class SocketService {
                 this.messageErrorListeners.forEach(cb => this.socket.on('message_error', cb));
                 this.requestSentListeners.forEach(cb => this.socket.on('request_sent', cb));
                 this.userStatusListeners.forEach(cb => this.socket.on('user_status_change', cb));
+                this.typingListeners.forEach(cb => this.socket.on('typing', cb));
+                this.stopTypingListeners.forEach(cb => this.socket.on('stop_typing', cb));
             });
 
             this.socket.on('connect_error', (err) => {
@@ -164,6 +168,38 @@ class SocketService {
     offUserStatusChange(callback) {
         this.userStatusListeners = this.userStatusListeners.filter(cb => cb !== callback);
         if (this.socket) this.socket.off('user_status_change', callback);
+    }
+
+    sendTyping(to, from) {
+        if (this.socket) {
+            this.socket.emit('typing', { to, from });
+        }
+    }
+
+    sendStopTyping(to, from) {
+        if (this.socket) {
+            this.socket.emit('stop_typing', { to, from });
+        }
+    }
+
+    onTyping(callback) {
+        this.typingListeners.push(callback);
+        if (this.socket) this.socket.on('typing', callback);
+    }
+
+    offTyping(callback) {
+        this.typingListeners = this.typingListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('typing', callback);
+    }
+
+    onStopTyping(callback) {
+        this.stopTypingListeners.push(callback);
+        if (this.socket) this.socket.on('stop_typing', callback);
+    }
+
+    offStopTyping(callback) {
+        this.stopTypingListeners = this.stopTypingListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('stop_typing', callback);
     }
 }
 

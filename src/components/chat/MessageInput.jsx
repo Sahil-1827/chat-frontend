@@ -1,7 +1,7 @@
 import { Plus, Smile, Mic, Send, Paperclip, FileText, Image as ImageIcon, Camera, Headphones, User, BarChart2, Calendar, Sticker, Search, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-const MessageInput = ({ onSend }) => {
+const MessageInput = ({ onSend, onTyping }) => {
     const [message, setMessage] = useState('');
     const [showAttachments, setShowAttachments] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -44,6 +44,24 @@ const MessageInput = ({ onSend }) => {
             <span className="text-[#3b4a54] dark:text-[#d1d7db] text-sm font-medium">{text}</span>
         </button>
     );
+
+    const typingTimeoutRef = useRef(null);
+
+    const handleInputChange = (e) => {
+        setMessage(e.target.value);
+
+        if (onTyping) {
+            onTyping(true);
+
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+
+            typingTimeoutRef.current = setTimeout(() => {
+                onTyping(false);
+            }, 2000);
+        }
+    };
 
     return (
         <div className="px-4 py-3 bg-[#f0f2f5] dark:bg-[#202c33] flex items-end gap-2 relative z-20">
@@ -121,7 +139,7 @@ const MessageInput = ({ onSend }) => {
                     placeholder="Type a message"
                     className="w-full bg-transparent border-none focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-[15px]"
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                 />
             </div>

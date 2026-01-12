@@ -7,6 +7,7 @@ import authService from '../../services/authService';
 
 const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
     const chatId = chatUser?.phone || chatUser; // Handle both object and legacy string ID
+    const [isTyping, setIsTyping] = useState(false);
 
     // Initial data from the screenshots
     const lilBrotherMessages = [
@@ -138,14 +139,30 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
             }
         };
 
+        const handleTyping = (data) => {
+            if (String(data.from) === String(chatId)) {
+                setIsTyping(true);
+            }
+        };
+
+        const handleStopTyping = (data) => {
+            if (String(data.from) === String(chatId)) {
+                setIsTyping(false);
+            }
+        };
+
         socketService.onMessageReceived(handleNewMessage);
         socketService.onMessagesRead(handleMessagesRead);
         socketService.onUserStatusChange(handleUserStatusChange);
+        socketService.onTyping(handleTyping);
+        socketService.onStopTyping(handleStopTyping);
 
         return () => {
             socketService.offMessageReceived(handleNewMessage);
             socketService.offMessagesRead(handleMessagesRead);
             socketService.offUserStatusChange(handleUserStatusChange);
+            socketService.offTyping(handleTyping);
+            socketService.offStopTyping(handleStopTyping);
         };
     }, [chatId, myPhone]);
 
@@ -230,6 +247,16 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
             socketService.offRequestResponse(handleRequestResponse);
         };
     }, [chatId, myPhone]);
+
+    const handleTyping = (isTypingStatus) => {
+        if (myPhone && chatId) {
+            if (isTypingStatus) {
+                socketService.sendTyping(chatId, myPhone);
+            } else {
+                socketService.sendStopTyping(chatId, myPhone);
+            }
+        }
+    };
 
     const handleSend = (text) => {
         if (!text.trim()) return;
@@ -332,7 +359,7 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
             );
         }
 
-        return <MessageInput onSend={handleSend} />;
+        return <MessageInput onSend={handleSend} onTyping={handleTyping} />;
     };
 
     return (
@@ -353,7 +380,9 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
                             {currentChatUser?.name || (chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`)}
                         </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {currentChatUser?.isOnline ? (
+                            {isTyping ? (
+                                <span className="text-green-500 font-medium">typing...</span>
+                            ) : currentChatUser?.isOnline ? (
                                 <span className="text-green-500">online</span>
                             ) : (
                                 currentChatUser?.lastSeen ? `last seen ${new Date(currentChatUser.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'offline'
