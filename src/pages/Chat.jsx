@@ -94,13 +94,17 @@ const Chat = () => {
         }
     };
 
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        setSelectedChat(null);
+    };
 
     return (
         <div className="flex h-screen bg-[#d1d7db] dark:bg-[#111b21] overflow-hidden">
             <div className="hidden md:block h-full flex-shrink-0">
                 <NavigationRail
                     activeTab={activeTab}
-                    setActiveTab={setActiveTab}
+                    setActiveTab={handleTabChange}
                     userImage={profileImage}
                     badgeCount={totalUnread}
                 />
