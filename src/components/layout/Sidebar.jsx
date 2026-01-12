@@ -100,7 +100,27 @@ const Sidebar = ({ onSelectChat }) => {
                 </div>
 
                 <div className="flex flex-col">
-                    {[1, 2, 3, 4, 5].map((id) => (
+                    <div
+                        onClick={() => onSelectChat('LilBrother')}
+                        className="flex items-center gap-3 p-3 hover:bg-[#f5f6f6] dark:hover:bg-[#202c33] cursor-pointer border-b border-[#f0f2f5] dark:border-[#202c33] transition-colors relative group"
+                    >
+                        <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=LilBrother`} alt="User" />
+                        </div>
+                        <div className="flex-1 min-w-0 pr-1">
+                            <div className="flex justify-between items-baseline mb-0.5">
+                                <h3 className="text-[#111b21] dark:text-[#e9edef] font-medium truncate text-[17px]">Lil Brother</h3>
+                                <span className="text-xs text-[#667781] dark:text-[#8696a0]">7:54 pm</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-[#667781] dark:text-[#8696a0] truncate flex-1 leading-5">
+                                    brining falafel
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {[2, 3, 4, 5].map((id) => (
                         <div
                             key={id}
                             onClick={() => onSelectChat(id)}
@@ -112,17 +132,12 @@ const Sidebar = ({ onSelectChat }) => {
                             <div className="flex-1 min-w-0 pr-1">
                                 <div className="flex justify-between items-baseline mb-0.5">
                                     <h3 className="text-[#111b21] dark:text-[#e9edef] font-medium truncate text-[17px]">User {id}</h3>
-                                    <span className="text-xs text-[#667781] dark:text-[#8696a0]">10:25 pm</span>
+                                    <span className="text-xs text-[#667781] dark:text-[#8696a0]">Yesterday</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <p className="text-sm text-[#667781] dark:text-[#8696a0] truncate flex-1 leading-5">
-                                        This is a preview of the last message...
+                                        Hey there! I am using WhatsApp.
                                     </p>
-                                    {id === 1 && (
-                                        <div className="ml-2 w-5 h-5 bg-[#00a884] rounded-full flex items-center justify-center">
-                                            <span className="text-white text-[10px] font-bold">2</span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>

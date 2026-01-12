@@ -4,15 +4,47 @@ import MessageInput from '../chat/MessageInput';
 import { useState, useRef, useEffect } from 'react';
 
 const ChatWindow = ({ chatId }) => {
-    const [messages, setMessages] = useState([
-        { id: 1, text: "BICEPS Exercises (Brutal Stretch!)", time: "10:25 pm", sender: "other", isLink: true },
-        { id: 2, text: "https://youtube.com/shorts/JsF_0...", time: "10:25 pm", sender: "other", isLink: true },
-        { id: 3, text: "https://www.youtube.com/shorts/Chg...", time: "6:35 pm", sender: "me", isLink: true, status: 'read' },
-        { id: 4, text: "NiagaraLauncherBackup-2025...", time: "8:45 am", sender: "me", isFile: true, size: "2 MB", status: 'read' },
-    ]);
+    // Initial data from the screenshots
+    const lilBrotherMessages = [
+        { id: 1, text: "Hey! Have you seen Whatsapp Web feature?", time: "02:00", sender: "me", status: 'read', date: "2015-01-22" },
+        { id: 2, text: "Yeah...Awsummmmmm 😃😃😍", time: "02:01", sender: "other", date: "2015-01-22" },
+        { id: 3, text: "Find more details on http://thehackernews.com/ , I have just published an article about it.", time: "02:01", sender: "me", status: 'read', date: "2015-01-22" },
+
+        // Second conversation block (Lil Brother)
+        { id: 4, text: "Kaha hoo bhai", time: "7:53 pm", sender: "me", status: 'read', date: "2023-10-25" },
+        { id: 5, text: "new ghar the", time: "7:53 pm", sender: "other", date: "2023-10-25" },
+        { id: 6, text: "bhaar se deka", time: "7:53 pm", sender: "other", date: "2023-10-25" },
+        { id: 7, text: "abh otw to rangoon", time: "7:53 pm", sender: "other", date: "2023-10-25" },
+        { id: 8, text: "Abbey lool.", time: "7:53 pm", sender: "me", status: 'read', date: "2023-10-25" },
+        { id: 9, text: "Chaabi hee le lete.", time: "7:53 pm", sender: "me", status: 'read', date: "2023-10-25" },
+        { id: 10, text: "cool.", time: "7:53 pm", sender: "me", status: 'read', date: "2023-10-25" },
+        { id: 11, text: "No fries. Laana hei toh falafel works only if it's good :)", time: "7:54 pm", sender: "me", status: 'read', date: "2023-10-25" },
+        { id: 12, text: "brining falafel", time: "7:54 pm", sender: "other", date: "2023-10-25" },
+    ];
+
+    const genericMessages = [
+        { id: 1, text: "Hey there! I am using WhatsApp.", time: "10:00 am", sender: "other", date: "2025-01-12" },
+        { id: 2, text: "Hello! How are you?", time: "10:05 am", sender: "me", status: 'read', date: "2025-01-12" }
+    ];
+
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+        if (chatId === 'LilBrother') {
+            setMessages(lilBrotherMessages);
+        } else {
+            setMessages(genericMessages);
+        }
+    }, [chatId]);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
+    const bottomRef = useRef(null);
+
+    useEffect(() => {
+        // Scroll to bottom on load
+        bottomRef.current?.scrollIntoView({ behavior: 'auto' });
+    }, [messages]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -28,9 +60,10 @@ const ChatWindow = ({ chatId }) => {
         const newMessage = {
             id: messages.length + 1,
             text: text,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase(),
             sender: "me",
-            status: 'sent'
+            status: 'sent',
+            date: new Date().toISOString().split('T')[0]
         };
         setMessages([...messages, newMessage]);
     };
@@ -42,17 +75,39 @@ const ChatWindow = ({ chatId }) => {
         </button>
     );
 
+    // Group messages by date
+    const groupMessagesByDate = (msgs) => {
+        const groups = {};
+        msgs.forEach(msg => {
+            const date = msg.date;
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(msg);
+        });
+        return groups;
+    };
+
+    const groupedMessages = groupMessagesByDate(messages);
+
+    const formatDate = (dateString) => {
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-GB', options).toUpperCase();
+    };
+
     return (
         <div className="flex flex-col h-full w-full bg-[#efeae2] dark:bg-[#0b141a] relative">
             <div className="absolute inset-0 z-0 opacity-[0.4] bg-repeat pointer-events-none" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')" }}></div>
 
-            <div className="h-16 px-4 py-2 bg-[#f0f2f5] dark:bg-[#202c33] flex items-center justify-between shadow-sm relative z-10">
+            <div className="h-16 px-4 py-2 bg-[#f0f2f5] dark:bg-[#202c33] flex items-center justify-between shadow-sm relative z-10 border-l border-gray-300 dark:border-gray-700">
                 <div className="flex items-center gap-4 cursor-pointer">
                     <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0 overflow-hidden">
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${chatId}`} alt="User" />
                     </div>
                     <div>
-                        <h2 className="text-[#111b21] dark:text-[#e9edef] font-medium text-base">User {chatId}</h2>
+                        <h2 className="text-[#111b21] dark:text-[#e9edef] font-medium text-base">
+                            {chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`}
+                        </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
                     </div>
                 </div>
@@ -82,17 +137,29 @@ const ChatWindow = ({ chatId }) => {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar z-10 flex flex-col gap-1">
-                <div className="flex justify-center mb-4 sticky top-2 z-20">
-                    <span className="bg-[#fff] dark:bg-[#182229] px-3 py-1 rounded-lg text-xs text-gray-500 dark:text-gray-300 shadow-sm border border-gray-100 dark:border-gray-800">Today</span>
-                </div>
-
-                {messages.map((msg) => (
-                    <MessageBubble key={msg.id} message={msg.text} isOwn={msg.isOwn} time={msg.time} />
+            <div className="flex-1 overflow-y-auto p-4 md:px-[5%] custom-scrollbar z-10 flex flex-col gap-1">
+                {Object.entries(groupedMessages).map(([date, msgs]) => (
+                    <div key={date} className="flex flex-col">
+                        <div className="flex justify-center mb-2 mt-2 sticky top-2 z-20">
+                            <span className="bg-[#fff] dark:bg-[#182229] px-3 py-1.5 rounded-lg text-xs font-medium text-[#54656f] dark:text-[#8696a0] shadow-sm uppercase tracking-wide">
+                                {formatDate(date)}
+                            </span>
+                        </div>
+                        {msgs.map((msg) => (
+                            <MessageBubble
+                                key={msg.id}
+                                message={msg.text}
+                                isOwn={msg.sender === 'me'}
+                                time={msg.time}
+                                status={msg.status}
+                            />
+                        ))}
+                    </div>
                 ))}
+                <div ref={bottomRef} />
             </div>
 
-            <div className="z-10">
+            <div className="z-10 bg-[#f0f2f5] dark:bg-[#202c33]">
                 <MessageInput onSend={handleSend} />
             </div>
         </div>
