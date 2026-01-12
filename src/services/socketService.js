@@ -11,6 +11,7 @@ class SocketService {
     requestResponseListeners = [];
     messageErrorListeners = [];
     requestSentListeners = [];
+    userStatusListeners = [];
 
     connect() {
         if (!this.socket) {
@@ -28,6 +29,7 @@ class SocketService {
                 this.requestResponseListeners.forEach(cb => this.socket.on('request_response', cb));
                 this.messageErrorListeners.forEach(cb => this.socket.on('message_error', cb));
                 this.requestSentListeners.forEach(cb => this.socket.on('request_sent', cb));
+                this.userStatusListeners.forEach(cb => this.socket.on('user_status_change', cb));
             });
 
             this.socket.on('connect_error', (err) => {
@@ -152,6 +154,16 @@ class SocketService {
     offRequestSent(callback) {
         this.requestSentListeners = this.requestSentListeners.filter(cb => cb !== callback);
         if (this.socket) this.socket.off('request_sent', callback);
+    }
+
+    onUserStatusChange(callback) {
+        this.userStatusListeners.push(callback);
+        if (this.socket) this.socket.on('user_status_change', callback);
+    }
+
+    offUserStatusChange(callback) {
+        this.userStatusListeners = this.userStatusListeners.filter(cb => cb !== callback);
+        if (this.socket) this.socket.off('user_status_change', callback);
     }
 }
 

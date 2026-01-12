@@ -1,4 +1,5 @@
 import api from '../api/axiosInstance';
+import socketService from './socketService';
 
 const authService = {
     signup: async (userData) => {
@@ -23,6 +24,7 @@ const authService = {
 
     logout: () => {
         localStorage.removeItem('authToken');
+        socketService.disconnect();
     },
 
     updateProfile: async (formData) => {

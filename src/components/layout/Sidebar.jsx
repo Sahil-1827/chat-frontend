@@ -94,8 +94,17 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
             });
         };
 
+        const handleUserStatusChange = (data) => {
+            setUsers(prevUsers => prevUsers.map(user =>
+                String(user.phone) === String(data.phone)
+                    ? { ...user, isOnline: data.isOnline, lastSeen: data.lastSeen }
+                    : user
+            ));
+        };
+
         socketService.onMessageReceived(handleNewMessage);
         socketService.onMessageSent(handleMessageSent);
+        socketService.onUserStatusChange(handleUserStatusChange);
 
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -109,12 +118,14 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
             document.removeEventListener('mousedown', handleClickOutside);
             socketService.offMessageReceived(handleNewMessage);
             socketService.offMessageSent(handleMessageSent);
+            socketService.offUserStatusChange(handleUserStatusChange);
         };
     }, []);
 
     const handleLogout = () => {
         authService.logout();
         navigate('/login');
+        socketService.disconnect();
     };
 
     const handleUserClick = (user) => {

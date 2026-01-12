@@ -128,12 +128,24 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
             }
         };
 
+        const handleUserStatusChange = (data) => {
+            if (String(data.phone) === String(chatId)) {
+                setCurrentChatUser(prev => ({
+                    ...prev,
+                    isOnline: data.isOnline,
+                    lastSeen: data.lastSeen
+                }));
+            }
+        };
+
         socketService.onMessageReceived(handleNewMessage);
         socketService.onMessagesRead(handleMessagesRead);
+        socketService.onUserStatusChange(handleUserStatusChange);
 
         return () => {
             socketService.offMessageReceived(handleNewMessage);
             socketService.offMessagesRead(handleMessagesRead);
+            socketService.offUserStatusChange(handleUserStatusChange);
         };
     }, [chatId, myPhone]);
 
@@ -340,7 +352,13 @@ const ChatWindow = ({ chatUser, myPhone, setUsers }) => {
                         <h2 className="text-[#111b21] dark:text-[#e9edef] font-medium text-base">
                             {currentChatUser?.name || (chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`)}
                         </h2>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {currentChatUser?.isOnline ? (
+                                <span className="text-green-500">online</span>
+                            ) : (
+                                currentChatUser?.lastSeen ? `last seen ${new Date(currentChatUser.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'offline'
+                            )}
+                        </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 relative">

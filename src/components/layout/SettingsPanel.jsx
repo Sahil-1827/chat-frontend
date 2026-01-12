@@ -21,6 +21,7 @@ const SettingsPanel = ({ setActiveTab, name, about, image }) => {
     const handleLogout = () => {
         authService.logout();
         navigate('/login');
+        socketService.disconnect();
     };
 
     const handleSaveTheme = () => {
