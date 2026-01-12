@@ -9,6 +9,7 @@ import StatusPanel from '../components/layout/StatusPanel';
 import CommunitiesPanel from '../components/layout/CommunitiesPanel';
 import authService from '../services/authService';
 import { useEffect } from 'react';
+import socketService from '../services/socketService';
 
 const Chat = () => {
     const [selectedChat, setSelectedChat] = useState(null);
@@ -18,6 +19,7 @@ const Chat = () => {
     const [profileName, setProfileName] = useState('Abubakar'); // Default or fetch
     const [aboutText, setAboutText] = useState('Hey there! I am using WhatsApp.');
     const [profileImage, setProfileImage] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');
+    const [myPhone, setMyPhone] = useState(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -25,6 +27,12 @@ const Chat = () => {
                 const user = await authService.getProfile();
                 if (user.name) setProfileName(user.name);
                 if (user.about) setAboutText(user.about);
+                if (user.phone) {
+                    setMyPhone(user.phone);
+                    // Connect and register socket
+                    socketService.connect();
+                    socketService.register(user.phone);
+                }
                 if (user.profilePic) {
                     // Check if it's already an absolute URL (Cloudinary) or needs prepending
                     const imageUrl = user.profilePic.startsWith('http')
@@ -37,6 +45,11 @@ const Chat = () => {
             }
         };
         fetchProfile();
+
+        return () => {
+            // Optional: disconnect on unmount if needed, but keeping it persistent is usually better for SPAs
+            // socketService.disconnect();
+        };
     }, []);
 
     const renderLeftPanel = () => {
@@ -93,7 +106,7 @@ const Chat = () => {
             <div className={`${!selectedChat ? 'hidden md:flex' : 'flex'} flex-1 flex-col bg-[#efeae2] dark:bg-[#0b141a] relative h-full`}>
                 {selectedChat ? (
                     <>
-                        <ChatWindow chatId={selectedChat} />
+                        <ChatWindow chatUser={selectedChat} myPhone={myPhone} />
                     </>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-10 relative">

@@ -37,6 +37,16 @@ const authService = {
     getProfile: async () => {
         const response = await api.get('/auth/profile');
         return response.data;
+    },
+
+    getAllUsers: async () => {
+        const response = await api.get('/auth/users');
+        return response.data;
+    },
+
+    getMessages: async (contactPhone) => {
+        const response = await api.get(`/messages/${contactPhone}`);
+        return response.data;
     }
 };
 

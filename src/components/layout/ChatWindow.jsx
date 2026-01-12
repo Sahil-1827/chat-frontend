@@ -2,8 +2,12 @@ import { MoreVertical, Search, Paperclip, CheckSquare, BellOff, Clock, XCircle, 
 import MessageBubble from '../chat/MessageBubble';
 import MessageInput from '../chat/MessageInput';
 import { useState, useRef, useEffect } from 'react';
+import socketService from '../../services/socketService';
+import authService from '../../services/authService';
 
-const ChatWindow = ({ chatId }) => {
+const ChatWindow = ({ chatUser, myPhone }) => {
+    const chatId = chatUser?.phone || chatUser; // Handle both object and legacy string ID
+
     // Initial data from the screenshots
     const lilBrotherMessages = [
         { id: 1, text: "Hey! Have you seen Whatsapp Web feature?", time: "02:00", sender: "me", status: 'read', date: "2015-01-22" },
@@ -30,12 +34,82 @@ const ChatWindow = ({ chatId }) => {
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
-        if (chatId === 'LilBrother') {
-            setMessages(lilBrotherMessages);
-        } else {
-            setMessages(genericMessages);
+        const fetchMessages = async () => {
+            if (chatId && chatId !== 'LilBrother' && myPhone) { // Basic check, maybe support LilBrother logic as fallback or remove
+                try {
+                    const history = await authService.getMessages(chatId);
+                    // Map history to UI format if needed, but our model mostly matches
+                    // Model: { sender, recipient, message, time, status, createdAt }
+                    // UI: { id, text, time, sender ('me'/'other'), status, date }
+
+                    const formattedMessages = history.map(msg => ({
+                        id: msg._id,
+                        text: msg.message,
+                        time: msg.time,
+                        sender: msg.sender === myPhone ? 'me' : 'other',
+                        status: msg.status,
+                        date: new Date(msg.createdAt).toISOString().split('T')[0]
+                    }));
+                    setMessages(formattedMessages);
+                } catch (error) {
+                    console.error("Failed to fetch messages:", error);
+                }
+            } else if (chatId === 'LilBrother') {
+                setMessages(lilBrotherMessages);
+            } else {
+                setMessages([]);
+            }
+        };
+
+        fetchMessages();
+
+        // Mark as read when opening chat
+        if (myPhone && chatId) {
+            socketService.markMessagesAsRead(chatId, myPhone);
         }
-    }, [chatId]);
+    }, [chatId, myPhone]);
+
+    // Socket Listener for incoming messages and read receipts
+    useEffect(() => {
+        const handleNewMessage = (data) => {
+            console.log("New message received:", data);
+            if (data.from === chatId) {
+                const newMessage = {
+                    id: Date.now(),
+                    text: data.message,
+                    time: data.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase(),
+                    sender: "other",
+                    status: 'read', // Assuming read if open
+                    date: new Date().toISOString().split('T')[0]
+                };
+                setMessages((prev) => [...prev, newMessage]);
+
+                // Mark as read immediately since we are in the chat
+                if (myPhone) {
+                    socketService.markMessagesAsRead(chatId, myPhone);
+                }
+            }
+        };
+
+        const handleMessagesRead = (data) => {
+            console.log("Messages read receipt:", data);
+            if (data.from === chatId) {
+                setMessages((prevMessages) =>
+                    prevMessages.map(msg =>
+                        msg.sender === 'me' ? { ...msg, status: 'read' } : msg
+                    )
+                );
+            }
+        };
+
+        socketService.onMessageReceived(handleNewMessage);
+        socketService.onMessagesRead(handleMessagesRead);
+
+        return () => {
+            socketService.offMessageReceived(handleNewMessage);
+            socketService.offMessagesRead(handleMessagesRead);
+        };
+    }, [chatId, myPhone]);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
@@ -57,8 +131,10 @@ const ChatWindow = ({ chatId }) => {
     }, []);
 
     const handleSend = (text) => {
+        if (!text.trim()) return;
+
         const newMessage = {
-            id: messages.length + 1,
+            id: Date.now(), // Use timestamp for unique ID
             text: text,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase(),
             sender: "me",
@@ -66,6 +142,13 @@ const ChatWindow = ({ chatId }) => {
             date: new Date().toISOString().split('T')[0]
         };
         setMessages([...messages, newMessage]);
+
+        // Emit socket event
+        if (myPhone && chatId) {
+            socketService.sendMessage(chatId, text, myPhone);
+        } else {
+            console.warn("Cannot send message: Missing myPhone or chatId");
+        }
     };
 
     const MenuItem = ({ icon: Icon, text, danger = false }) => (
@@ -102,11 +185,15 @@ const ChatWindow = ({ chatId }) => {
             <div className="h-16 px-4 py-2 bg-[#f0f2f5] dark:bg-[#202c33] flex items-center justify-between shadow-sm relative z-10 border-l border-gray-300 dark:border-gray-700">
                 <div className="flex items-center gap-4 cursor-pointer">
                     <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0 overflow-hidden">
-                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${chatId}`} alt="User" />
+                        <img
+                            src={chatUser?.profilePic && chatUser.profilePic.startsWith('http') ? chatUser.profilePic : chatUser?.profilePic ? `http://localhost:5000/${chatUser.profilePic}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${chatId}`}
+                            alt="User"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                     <div>
                         <h2 className="text-[#111b21] dark:text-[#e9edef] font-medium text-base">
-                            {chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`}
+                            {chatUser?.name || (chatId === 'LilBrother' ? 'Lil Brother' : `User ${chatId}`)}
                         </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">online</p>
                     </div>
