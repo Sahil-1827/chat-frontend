@@ -117,7 +117,7 @@ const Chat = () => {
             <div className={`${!selectedChat ? 'hidden md:flex' : 'flex'} flex-1 flex-col bg-[#efeae2] dark:bg-[#0b141a] relative h-full`}>
                 {selectedChat ? (
                     <>
-                        <ChatWindow chatUser={selectedChat} myPhone={myPhone} setUsers={setUsers} />
+                        <ChatWindow chatUser={selectedChat} myPhone={myPhone} setUsers={setUsers} users={users} onClose={() => setSelectedChat(null)} />
                     </>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-10 relative">

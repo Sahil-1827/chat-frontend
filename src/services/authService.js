@@ -58,6 +58,22 @@ const authService = {
         });
         return response.data;
     },
+
+    clearChat: async (contactPhone) => {
+        const token = localStorage.getItem('token');
+        const response = await api.post(`/messages/clear/${contactPhone}`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+    deleteChat: async (contactPhone) => {
+        const token = localStorage.getItem('token');
+        const response = await api.delete(`/connections/${contactPhone}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
 };
 
 export default authService;
