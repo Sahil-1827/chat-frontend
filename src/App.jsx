@@ -5,6 +5,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import Chat from './pages/Chat';
 import Settings from './pages/Settings';
 import { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
+import socketService from './services/socketService';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
