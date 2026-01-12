@@ -1,16 +1,31 @@
-import { Search, User, Key, Lock, MessageSquare, Bell, Keyboard, HelpCircle, LogOut, Laptop } from 'lucide-react';
-import { useState } from 'react';
+import { Search, User, Key, Lock, MessageSquare, Bell, Keyboard, HelpCircle, LogOut, Laptop, Sun } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import Modal from '../common/Modal';
+import { useTheme } from '../../context/ThemeContext';
 
 const SettingsPanel = ({ setActiveTab, name, about, image }) => {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+    const { theme, setTheme } = useTheme();
+    const [tempTheme, setTempTheme] = useState(theme);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isThemeModalOpen) {
+            setTempTheme(theme);
+        }
+    }, [isThemeModalOpen, theme]);
 
     const handleLogout = () => {
         authService.logout();
         navigate('/login');
+    };
+
+    const handleSaveTheme = () => {
+        setTheme(tempTheme);
+        setIsThemeModalOpen(false);
     };
 
     const SettingsItem = ({ icon: Icon, title, subtitle, onClick, isDanger }) => (
@@ -59,16 +74,77 @@ const SettingsPanel = ({ setActiveTab, name, about, image }) => {
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-[#111b21]">
-                <SettingsItem icon={Laptop} title="General" subtitle="Theme, keyboard shortcuts" />
+                <SettingsItem icon={Laptop} title="General" subtitle="Keyboard shortcuts" />
                 <SettingsItem icon={Key} title="Account" subtitle="Security notifications, request account info" />
                 <SettingsItem icon={Lock} title="Privacy" subtitle="Block contacts, disappearing messages" />
-                <SettingsItem icon={MessageSquare} title="Chats" subtitle="Theme, wallpapers, chat history" />
+                <SettingsItem icon={MessageSquare} title="Chats" subtitle="Wallpapers, chat history" />
                 <SettingsItem icon={Bell} title="Notifications" subtitle="Message, group & call tones" />
+                <SettingsItem
+                    icon={Sun}
+                    title="Theme"
+                    subtitle={theme === 'system' ? 'System default' : theme === 'dark' ? 'Dark' : 'Light'}
+                    onClick={() => setIsThemeModalOpen(true)}
+                />
+
                 <SettingsItem icon={Keyboard} title="Keyboard shortcuts" />
                 <SettingsItem icon={HelpCircle} title="Help" subtitle="Help center, contact us, privacy policy" />
                 <div className="my-2 border-t border-[#f0f2f5] dark:border-[#202c33]"></div>
                 <SettingsItem icon={LogOut} title="Log out" isDanger={true} onClick={() => setIsLogoutModalOpen(true)} />
             </div>
+
+            <Modal
+                isOpen={isThemeModalOpen}
+                onClose={() => setIsThemeModalOpen(false)}
+                title="Choose theme"
+                primaryButtonText="OK"
+                secondaryButtonText="Cancel"
+                onPrimaryAction={handleSaveTheme}
+            >
+                <div className="flex flex-col gap-5 py-1">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${tempTheme === 'system' ? 'border-[#008069] dark:border-[#00a884]' : 'border-[#667781] dark:border-[#8696a0]'}`}>
+                            {tempTheme === 'system' && <div className="w-2.5 h-2.5 rounded-full bg-[#008069] dark:bg-[#00a884]" />}
+                        </div>
+                        <span className="text-[#3b4a54] dark:text-[#e9edef] text-[17px]">System default</span>
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="system"
+                            checked={tempTheme === 'system'}
+                            onChange={() => setTempTheme('system')}
+                            className="hidden"
+                        />
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${tempTheme === 'light' ? 'border-[#008069] dark:border-[#00a884]' : 'border-[#667781] dark:border-[#8696a0]'}`}>
+                            {tempTheme === 'light' && <div className="w-2.5 h-2.5 rounded-full bg-[#008069] dark:bg-[#00a884]" />}
+                        </div>
+                        <span className="text-[#3b4a54] dark:text-[#e9edef] text-[17px]">Light</span>
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="light"
+                            checked={tempTheme === 'light'}
+                            onChange={() => setTempTheme('light')}
+                            className="hidden"
+                        />
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${tempTheme === 'dark' ? 'border-[#008069] dark:border-[#00a884]' : 'border-[#667781] dark:border-[#8696a0]'}`}>
+                            {tempTheme === 'dark' && <div className="w-2.5 h-2.5 rounded-full bg-[#008069] dark:bg-[#00a884]" />}
+                        </div>
+                        <span className="text-[#3b4a54] dark:text-[#e9edef] text-[17px]">Dark</span>
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="dark"
+                            checked={tempTheme === 'dark'}
+                            onChange={() => setTempTheme('dark')}
+                            className="hidden"
+                        />
+                    </label>
+                </div>
+            </Modal>
 
             <Modal
                 isOpen={isLogoutModalOpen}
