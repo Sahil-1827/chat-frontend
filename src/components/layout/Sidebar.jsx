@@ -14,11 +14,25 @@ import { useState, useRef, useEffect } from 'react';
 import authService from '../../services/authService';
 import socketService from '../../services/socketService';
 
-const Sidebar = ({ onSelectChat }) => {
+const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat }) => {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [users, setUsers] = useState([]);
     const menuRef = useRef(null);
+    const selectedChatRef = useRef(null);
+
+    // Keep ref in sync with selectedChat prop to access inside socket closure
+    useEffect(() => {
+        selectedChatRef.current = selectedChat;
+    }, [selectedChat]);
+
+    // Calculate and report total unread count whenever users list changes
+    useEffect(() => {
+        if (onUnreadCountChange) {
+            const totalUnread = users.reduce((acc, user) => acc + (user.unreadCount || 0), 0);
+            onUnreadCountChange(totalUnread);
+        }
+    }, [users, onUnreadCountChange]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -39,16 +53,19 @@ const Sidebar = ({ onSelectChat }) => {
                     // Use String() to ensure loose matching if types differ
                     if (String(user.phone) === String(newMessage.from)) {
                         console.log("Updating sidebar for received message from:", user.name);
+
+                        // Check if this chat is currently open
+                        const isChatOpen = selectedChatRef.current &&
+                            String(selectedChatRef.current.phone) === String(newMessage.from);
+
                         return {
                             ...user,
                             lastMessage: {
                                 text: newMessage.message,
                                 time: newMessage.time
                             },
-                            // If we are effectively "in" this chat, maybe we shouldn't increment? 
-                            // But Sidebar doesn't know `chatId` from ChatWindow easily unless lifted state.
-                            // For now, simple increment is fine, user clears on click.
-                            unreadCount: (user.unreadCount || 0) + 1
+                            // If chat is open, do not increment unread count
+                            unreadCount: isChatOpen ? 0 : (user.unreadCount || 0) + 1
                         };
                     }
                     return user;

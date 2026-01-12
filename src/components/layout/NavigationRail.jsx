@@ -2,7 +2,7 @@ import { MessageSquare, CircleDashed, Users, Settings, Circle } from 'lucide-rea
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 
-const NavigationRail = ({ activeTab, setActiveTab, userImage }) => {
+const NavigationRail = ({ activeTab, setActiveTab, userImage, badgeCount }) => {
     const { theme } = useTheme();
     const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ const NavigationRail = ({ activeTab, setActiveTab, userImage }) => {
             <Icon className={`w-6 h-6 ${active ? 'text-white' : 'text-[#54656f] dark:text-[#aebac1]'}`} strokeWidth={1.5} />
             {badge > 0 && (
                 <span className="absolute -top-1 -right-1 bg-[#00a884] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-white dark:border-[#111b21]">
-                    {badge}
+                    {badge > 99 ? '99+' : badge}
                 </span>
             )}
         </div>
@@ -28,7 +28,7 @@ const NavigationRail = ({ activeTab, setActiveTab, userImage }) => {
                     icon={MessageSquare}
                     active={activeTab === 'chats'}
                     onClick={() => setActiveTab('chats')}
-                    badge={2}
+                    badge={badgeCount}
                     title="Chats"
                 />
                 <NavIcon

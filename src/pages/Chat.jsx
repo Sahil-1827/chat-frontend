@@ -20,6 +20,7 @@ const Chat = () => {
     const [aboutText, setAboutText] = useState('Hey there! I am using WhatsApp.');
     const [profileImage, setProfileImage] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');
     const [myPhone, setMyPhone] = useState(null);
+    const [totalUnread, setTotalUnread] = useState(0);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -83,6 +84,8 @@ const Chat = () => {
                     <Sidebar
                         onSelectChat={setSelectedChat}
                         userImage={profileImage}
+                        onUnreadCountChange={setTotalUnread}
+                        selectedChat={selectedChat}
                     />
                 );
         }
@@ -96,6 +99,7 @@ const Chat = () => {
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                     userImage={profileImage}
+                    badgeCount={totalUnread}
                 />
             </div>
 
