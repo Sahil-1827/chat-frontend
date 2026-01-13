@@ -10,6 +10,7 @@ import CommunitiesPanel from '../components/layout/CommunitiesPanel';
 import authService from '../services/authService';
 import { useEffect } from 'react';
 import socketService from '../services/socketService';
+import { Lock } from 'lucide-react';
 
 const Chat = () => {
     const [selectedChat, setSelectedChat] = useState(null);
@@ -130,13 +131,8 @@ const Chat = () => {
                                 </div>
                             </div>
                             <h1 className="text-3xl font-light text-gray-600 dark:text-gray-200 mb-4">WhatsApp Web Clone</h1>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md">
-                                Send and receive messages without keeping your phone online.
-                                <br />
-                                Use WhatsApp on up to 4 linked devices and 1 phone.
-                            </p>
-                            <div className="mt-10 flex items-center gap-2 text-xs text-gray-400">
-                                <span className="w-3 h-3 bg-gray-400 rounded-full"></span>
+                            <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                                <Lock size={14} strokeWidth={2} />
                                 End-to-end encrypted
                             </div>
                         </div>

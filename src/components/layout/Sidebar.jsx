@@ -151,7 +151,7 @@ const Sidebar = ({ onSelectChat, onUnreadCountChange, selectedChat, users, setUs
             {/* Header */}
             <div className="h-16 px-4 py-3 bg-white dark:bg-[#111b21] flex items-center justify-between flex-shrink-0 relative">
                 <h1 className="text-xl font-bold text-[#41525d] dark:text-[#d1d7db]">
-                    WhatsApp
+                    WhatsApp Clone
                 </h1>
 
                 <div className="flex items-center gap-4 text-[#54656f] dark:text-[#aebac1]">
