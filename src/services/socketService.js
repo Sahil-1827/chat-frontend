@@ -24,6 +24,12 @@ class SocketService {
 
             this.socket.on('connect', () => {
                 console.log('Socket connected via polling:', this.socket.id);
+
+                // Automatically re-register if we have the phone number (e.g. after a reconnect)
+                if (this.phone) {
+                    this.register(this.phone);
+                }
+
                 // Re-attach listeners upon connection/reconnection
                 this.messageListeners.forEach(cb => this.socket.on('receive_message', cb));
                 this.readListeners.forEach(cb => this.socket.on('messages_read', cb));
@@ -55,6 +61,7 @@ class SocketService {
     }
 
     register(phone) {
+        this.phone = phone; // Store phone for re-registration on reconnect
         if (this.socket) {
             this.socket.emit('register', phone);
             console.log('Registered with phone:', phone);
